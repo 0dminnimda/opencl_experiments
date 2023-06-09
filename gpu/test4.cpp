@@ -9,9 +9,9 @@
 #include "opencl_helpers.cpp"
 
 static const std::string kernel_source = R"(
-__kernel void vector_add(__global float *A,
-                         __global float *B,
-                         __global float *C) {
+kernel void vector_add(global float *A,
+                       global float *B,
+                       global float *C) {
     int gid = get_global_id(0);   
     C[gid] = A[gid] + B[gid] / 2;
     if (gid == 0) printf("%p %p\n", A, B);
