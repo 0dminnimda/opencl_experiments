@@ -3,7 +3,7 @@ from pathlib import Path
 from subprocess import call
 
 
-SAN = False
+SAN = True
 DEBUG = True
 
 OPENCL_PATH = Path(r"C:\OpenCL-SDK\v2023.04.17-Win-x64")
