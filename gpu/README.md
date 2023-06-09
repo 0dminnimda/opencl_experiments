@@ -13,7 +13,7 @@ You should have gpu(s) and appropriate drivers installed
 Run
 
 ```shell
-python build.py get_available_platforms.cpp && ./main.out
+python build.py get_system_info.cpp && ./main.out
 ```
 
 To see the available platforms and devices + test that everything works.
