@@ -26,7 +26,7 @@ int main() {
     cl::Context context(device);
     cl::CommandQueue queue(context, device);
 
-    const int N = 50;
+    const int N = 1024;
 
     std::vector<float> A(N);
     std::vector<float> B(N);
@@ -41,14 +41,17 @@ int main() {
 
 #if 0
     for (size_t i = 0; i < C.size(); ++i) {
-        std::cout << "A[" << i << "] = " << A[i] << std::endl;
+        std::cout << "A[" << i << "] = " << A[i] << ", ";
     }
+    std::cout << std::endl << std::endl;
     for (size_t i = 0; i < C.size(); ++i) {
-        std::cout << "B[" << i << "] = " << B[i] << std::endl;
+        std::cout << "B[" << i << "] = " << B[i] << ", ";
     }
+    std::cout << std::endl << std::endl;
     for (size_t i = 0; i < C.size(); ++i) {
-        std::cout << "C[" << i << "] = " << C[i] << std::endl;
+        std::cout << "C[" << i << "] = " << C[i] << ", ";
     }
+    std::cout << std::endl << std::endl;
 #endif
 
     cl::Buffer bufferA(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
@@ -89,14 +92,17 @@ int main() {
 
     queue.enqueueReadBuffer(bufferC, CL_TRUE, 0, sizeof(float) * C.size(), C.data());
     for (size_t i = 0; i < C.size(); ++i) {
-        std::cout << "A[" << i << "] = " << A[i] << std::endl;
+        std::cout << "A[" << i << "] = " << A[i] << ", ";
     }
+    std::cout << std::endl << std::endl;
     for (size_t i = 0; i < C.size(); ++i) {
-        std::cout << "B[" << i << "] = " << B[i] << std::endl;
+        std::cout << "B[" << i << "] = " << B[i] << ", ";
     }
+    std::cout << std::endl << std::endl;
     for (size_t i = 0; i < C.size(); ++i) {
-        std::cout << "C[" << i << "] = " << C[i] << std::endl;
+        std::cout << "C[" << i << "] = " << C[i] << ", ";
     }
+    std::cout << std::endl << std::endl;
 
     return 0;
 }
