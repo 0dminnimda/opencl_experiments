@@ -2,48 +2,50 @@
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 
 #include <CL/opencl.hpp>
+#include <cstdio>
 #include <iostream>
 #include <vector>
 
 #include "opencl_helpers.cpp"
 
+
+static const std::string kernel_source = R"(
+__kernel void vector_add(__global const float *A,
+                         __global const float *B,
+                         __global float *C) {
+    int gid = get_global_id(0);   
+    C[gid] = A[gid] + B[gid];
+    printf("%p %p\n", A, B);
+}
+)";
+
 int main() {
-    // Define input data
     std::vector<float> A = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
     std::vector<float> B = {5.5f, 4.0f, 3.0f, 2.3f, 1.0f};
     std::vector<float> C(A.size());
 
-    // Get default platform and device
     cl::Device device;
     if (get_gpu_device(device)) { return -1; }
-
-    // Create context and command queue
     cl::Context context(device);
     cl::CommandQueue queue(context, device);
 
-    // Create buffers
-    cl::Buffer bufferA(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+    cl::Buffer bufferA(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
                        sizeof(float) * A.size(), A.data());
-    cl::Buffer bufferB(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+    cl::Buffer bufferB(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
                        sizeof(float) * B.size(), B.data());
     cl::Buffer bufferC(context, CL_MEM_WRITE_ONLY, sizeof(float) * C.size());
 
-    // Kernel source code
-    // const char *kernelSource =
-    // "__kernel void vector_add(__global const float *A, __global const float *B, "
-    // "__global float *C) {"
-    // "  int gid = get_global_id(0);"
-    // "  C[gid] = A[gid] + B[gid];"
-    // "}";
-    const char *kernelSource =
-        "__kernel void vector_add(__global const float *A, __global const float *B, "
-        "__global float *C) {"
-        "  int gid = get_global_id(0);"
-        "  C[gid] = A[gid] + B[gid];"
-        "}";
+    // see the adresses of the data and the buffers, to compare to the kernel ones
+    printf("%p %p\n", A.data(), B.data());
 
-    // Build kernel
-    cl::Program::Sources sources({kernelSource});
+    void *devicePtr1 = nullptr;
+    bufferA.getInfo(CL_MEM_HOST_PTR, &devicePtr1);
+    void *devicePtr2 = nullptr;
+    bufferB.getInfo(CL_MEM_HOST_PTR, &devicePtr2);
+    printf("%p %p\n", devicePtr1, devicePtr2);
+
+    // Build program
+    cl::Program::Sources sources({kernel_source});
     cl_int err;
     cl::Program program(context, sources);
     err = program.build(device);
