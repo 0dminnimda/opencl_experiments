@@ -1,3 +1,5 @@
 *.ilk
 *.out
 *.pdb
+*.exp
+*.lib
