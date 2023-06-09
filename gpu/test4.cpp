@@ -14,7 +14,7 @@ __kernel void vector_add(__global float *A,
                          __global float *C) {
     int gid = get_global_id(0);   
     C[gid] = A[gid] + B[gid];
-    printf("%p %p\n", A, B);
+    if (gid == 0) printf("%p %p\n", A, B);
     A[gid] = 1;
     B[gid] = 1;
 }
