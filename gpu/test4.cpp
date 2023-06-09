@@ -26,7 +26,7 @@ int main() {
     cl::Context context(device);
     cl::CommandQueue queue(context, device);
 
-    const int N = 1024;
+    const int N = 4096;
 
     std::vector<float> A(N);
     std::vector<float> B(N);
@@ -71,18 +71,17 @@ int main() {
 
     // Build program
     cl::Program::Sources sources({kernel_source});
-    cl_int err;
     cl::Program program(context, sources);
-    err = program.build(device);
-    if (err != CL_SUCCESS) {
+    if (program.build(device) != CL_SUCCESS) {
         std::cout << "Error building program: "
                   << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
         return 1;
     }
 
-    cl::Kernel kernel(program, "vector_add", &err);
-    if (err != CL_SUCCESS) {
-        std::cout << "Error creating kernel: " << err << std::endl;
+    cl_int error = CL_SUCCESS;
+    cl::Kernel kernel(program, "vector_add", &error);
+    if (error != CL_SUCCESS) {
+        std::cout << "Error creating kernel: " << error << std::endl;
         return 1;
     }
     set_kernel_args(kernel, bufferA, bufferB, bufferC);

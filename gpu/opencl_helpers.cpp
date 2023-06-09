@@ -92,13 +92,6 @@ std::vector<cl::Device> get_suitable_devices(const std::string &platform_version
 bool get_gpu_device(cl::Device &device) {
     std::string platform_version = as_platform_version(CL_HPP_TARGET_OPENCL_VERSION);
 
-    // cl_int error = CL_SUCCESS;
-    // cl::Platform platform = cl::Platform::getDefault(&error);
-    // if (error == CL_SUCCESS &&
-    //     platform_version_matches(platform, target_version)) {
-    //     return platform;
-    // }
-
     std::vector<cl::Device> devices =
         get_suitable_devices(platform_version, CL_DEVICE_TYPE_GPU);
     if (devices.size() == 0) {
