@@ -39,6 +39,7 @@ int main() {
     A[2] += 0.2;
     B[4] += 0.8;
 
+#if 0
     for (size_t i = 0; i < C.size(); ++i) {
         std::cout << "A[" << i << "] = " << A[i] << std::endl;
     }
@@ -48,6 +49,7 @@ int main() {
     for (size_t i = 0; i < C.size(); ++i) {
         std::cout << "C[" << i << "] = " << C[i] << std::endl;
     }
+#endif
 
     cl::Buffer bufferA(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
                        sizeof(float) * A.size(), A.data());
