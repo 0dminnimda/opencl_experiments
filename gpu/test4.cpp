@@ -8,7 +8,6 @@
 
 #include "opencl_helpers.cpp"
 
-
 static const std::string kernel_source = R"(
 __kernel void vector_add(__global float *A,
                          __global float *B,
@@ -21,15 +20,24 @@ __kernel void vector_add(__global float *A,
 }
 )";
 
-int main() {    
+int main() {
     cl::Device device;
     if (get_gpu_device(device)) { return -1; }
     cl::Context context(device);
     cl::CommandQueue queue(context, device);
 
-    std::vector<float> A = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
-    std::vector<float> B = {5.5f, 4.0f, 3.0f, 2.3f, 1.0f};
+    const int N = 50;
+
+    std::vector<float> A(N);
+    std::vector<float> B(N);
     std::vector<float> C(A.size());
+    for (int i = 0; i < N; i++) {
+        A[i] = i;
+        B[i] = N - i;
+    }
+
+    A[2] += 0.2;
+    B[4] += 0.8;
 
     for (size_t i = 0; i < C.size(); ++i) {
         std::cout << "A[" << i << "] = " << A[i] << std::endl;
