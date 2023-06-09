@@ -38,20 +38,20 @@ bool platform_version_matches(const cl::Platform &platform, const std::string &v
 
 std::string device_type_string(cl_device_type type) {
     if (type == CL_DEVICE_TYPE_DEFAULT) {
-        return "default";
+        return "DEFAULT";
     } else if (type == CL_DEVICE_TYPE_CPU) {
-        return "cpu";
+        return "CPU";
     } else if (type == CL_DEVICE_TYPE_GPU) {
-        return "gpu";
+        return "GPU";
     } else if (type == CL_DEVICE_TYPE_ACCELERATOR) {
-        return "accelerator";
+        return "ACCELERATOR";
     }
 #ifdef CL_DEVICE_TYPE_CUSTOM
     else if (type == CL_DEVICE_TYPE_CUSTOM) {
-        return "custom";
+        return "CUSTOM";
     }
 #endif
-    return "unknown";
+    return "UNKNOWN";
 }
 
 std::ostream &operator<<(std::ostream &stream, const cl::Platform &platform) {
