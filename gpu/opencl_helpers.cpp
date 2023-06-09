@@ -116,3 +116,17 @@ bool get_gpu_device(cl::Device &device) {
 
     return false;
 }
+
+template <int index = 0, typename T0, typename... T1s>
+void set_kernel_args(cl::Kernel &kernel, T0 &&t0, T1s &&...t1s) {
+    kernel.setArg(index, t0);
+    set_kernel_args<index + 1, T1s...>(kernel, std::forward<T1s>(t1s)...);
+}
+
+template <int index = 0>
+void set_kernel_args(cl::Kernel &kernel) {}
+
+cl_int execute_kernel(cl::CommandQueue &queue, const cl::Kernel &kernel,
+                      const cl::NDRange &global) {
+    return queue.enqueueNDRangeKernel(kernel, cl::NullRange, global);
+}

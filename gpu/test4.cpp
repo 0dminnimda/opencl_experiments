@@ -75,29 +75,17 @@ int main() {
         return 1;
     }
 
-    // Create kernel
     cl::Kernel kernel(program, "vector_add", &err);
     if (err != CL_SUCCESS) {
         std::cout << "Error creating kernel: " << err << std::endl;
         return 1;
     }
+    set_kernel_args(kernel, bufferA, bufferB, bufferC);
 
-    // Set kernel arguments
-    kernel.setArg(0, bufferA);
-    kernel.setArg(1, bufferB);
-    kernel.setArg(2, bufferC);
-
-    // Execute kernel
-    cl::NDRange globalSize(A.size());
-    cl::NDRange localSize(1);
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, globalSize, localSize);
-
+    execute_kernel(queue, kernel, cl::NDRange(A.size()));
     queue.finish();
 
-    // Read results from the output buffer
     queue.enqueueReadBuffer(bufferC, CL_TRUE, 0, sizeof(float) * C.size(), C.data());
-
-    // Print the result
     for (size_t i = 0; i < C.size(); ++i) {
         std::cout << "A[" << i << "] = " << A[i] << std::endl;
     }
