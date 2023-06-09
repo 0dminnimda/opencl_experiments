@@ -1,4 +1,5 @@
 #include <CL/opencl.hpp>
+#include <cctype>
 #include <iostream>
 #include <string>
 
@@ -53,6 +54,23 @@ std::string device_type_string(cl_device_type type) {
     return "unknown";
 }
 
+std::ostream &operator<<(std::ostream &stream, const cl::Platform &platform) {
+    std::string platform_version = platform.getInfo<CL_PLATFORM_VERSION>();
+    stream << platform_version;
+
+    // "OpenCL 1.2 " is possible value of platform_version
+    if (!std::isspace(platform_version[platform_version.size() - 1])) stream << " ";
+
+    stream << "(version " << as_opencl_version(platform_version) << ")";
+    return stream;
+}
+
+std::ostream &operator<<(std::ostream &stream, const cl::Device &device) {
+    stream << device.getInfo<CL_DEVICE_NAME>() << " ("
+           << device_type_string(device.getInfo<CL_DEVICE_TYPE>()) << ")";
+    return stream;
+}
+
 std::vector<cl::Device> get_suitable_devices(const std::string &platform_version,
                                              cl_device_type type) {
     std::vector<cl::Device> devices;
@@ -88,12 +106,12 @@ bool get_gpu_device(cl::Device &device) {
                   << "\n";
         return true;
     }
-    std::cout << "Available platforms:\n";
+    std::cout << "Available devices:\n";
     for (auto &device : devices) {
-        std::cout << platform_version << " (" << as_opencl_version(platform_version)
-                  << ") Device: " << device.getInfo<CL_DEVICE_NAME>() << " "
-                  << device_type_string(device.getInfo<CL_DEVICE_TYPE>()) << std::endl;
+        cl::Platform platform(device.getInfo<CL_DEVICE_PLATFORM>(), true);
+        std::cout << "  " << platform << " - " << device << std::endl;
     }
+    std::cout << "\n";
     device = devices[0];
 
     return false;
