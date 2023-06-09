@@ -9,38 +9,17 @@
 #include <memory>
 #include <vector>
 
-bool initialize_platform(cl::Platform &plat) {
-    // Filter for target platform and set it as the default
-    std::vector<cl::Platform> platforms;
-    cl::Platform::get(&platforms);
-    for (auto &p : platforms) {
-        std::string platver = p.getInfo<CL_PLATFORM_VERSION>();
-        std::cerr << "Plat: " << platver << "\n";
-        if (platver.find("OpenCL 2.") != std::string::npos) { plat = p; }
-    }
-    if (plat() == 0) {
-        std::cout << "No OpenCL 2.0 platform found.\n";
-        return true;
-    }
-    // getPlatformVersion
-
-    cl::Platform newP = cl::Platform::setDefault(plat);
-    if (newP != plat) {
-        std::cout << "Error setting default platform.";
-        return true;
-    }
-
-    return false;
-}
+#include "opencl_helpers.cpp"
 
 const int numElements = 32;
 
 int main(void) {
-    cl::Platform plat;
-    if (initialize_platform(plat)) return -1;
+    cl::Device device;
+    if (get_gpu_device(device)) { return -1; }
+    cl::Context context(device);
 
 #if defined(CL_HPP_ENABLE_EXCEPTIONS)
-    cl::Program errorProgram(std::string("sakfdjnksajfnksajnfsa"), false);
+    cl::Program errorProgram(context, std::string("sakfdjnksajfnksajnfsa"), false);
     try {
         errorProgram.build("-cl-std=CL2.0");
     } catch (...) {
@@ -55,7 +34,7 @@ int main(void) {
         }
     }
 
-    cl::Program errorProgramException(std::string("sakfdjnksajfnksajnfsa"), false);
+    cl::Program errorProgramException(context, std::string("sakfdjnksajfnksajnfsa"), false);
     try {
         errorProgramException.build("-cl-std=CL2.0");
     } catch (const cl::BuildError &err) {
@@ -72,37 +51,39 @@ int main(void) {
 #endif  // #if defined(CL_HPP_ENABLE_EXCEPTIONS)
 
     std::string kernel1{
-        "global int globalA;"
-        "kernel void updateGlobal(){"
-        "  globalA = 75;"
-        "}"};
+        "global int globalA;\n"
+        "kernel void updateGlobal(){\n"
+        "  globalA = 75;\n"
+        "}\n"
+        };
     std::string kernel2{
-        "typedef struct { global int *bar; } Foo; kernel void vectorAdd(global const "
-        "Foo* aNum, global const int *inputA, global const int *inputB, global int "
-        "*output, global int *output2, int val, write_only pipe int outPipe, queue_t "
-        "childQueue){"
-        "  output[get_global_id(0)] = inputA[get_global_id(0)] + "
-        "inputB[get_global_id(0)] + val + *(aNum->bar);"
-        "  output2[get_global_id(0)] = inputA[get_global_id(0)] + "
-        "inputB[get_global_id(0)] + val + *(aNum->bar);"
-        "  write_pipe(outPipe, &val);"
-        "  queue_t default_queue = get_default_queue(); "
-        "  ndrange_t ndrange = ndrange_1D(get_global_size(0)/2, get_global_size(0)/2); "
+        "typedef struct { global int *bar; } Foo; kernel void vectorAdd(global const \n"
+        "Foo* aNum, global const int *inputA, global const int *inputB, global int \n"
+        "*output, global int *output2, int val, write_only pipe int outPipe, queue_t \n"
+        "childQueue){\n"
+        "  output[get_global_id(0)] = inputA[get_global_id(0)] + \n"
+        "inputB[get_global_id(0)] + val + *(aNum->bar);\n"
+        "  output2[get_global_id(0)] = inputA[get_global_id(0)] + \n"
+        "inputB[get_global_id(0)] + val + *(aNum->bar);\n"
+        "  write_pipe(outPipe, &val);\n"
+        "  queue_t default_queue = get_default_queue(); \n"
+        "  ndrange_t ndrange = ndrange_1D(get_global_size(0)/2, get_global_size(0)/2); \n"
         // Have a child kernel write into third quarter of output
-        "  enqueue_kernel(default_queue, CLK_ENQUEUE_FLAGS_WAIT_KERNEL, ndrange, "
-        "    ^{"
-        "      output[get_global_size(0)*2 + get_global_id(0)] = "
-        "inputA[get_global_size(0)*2+get_global_id(0)] + "
-        "inputB[get_global_size(0)*2+get_global_id(0)] + globalA;"
-        "    });"
+        "  enqueue_kernel(default_queue, CLK_ENQUEUE_FLAGS_WAIT_KERNEL, ndrange, \n"
+        "    ^{\n"
+        "      output[get_global_size(0)*2 + get_global_id(0)] = \n"
+        "inputA[get_global_size(0)*2+get_global_id(0)] + \n"
+        "inputB[get_global_size(0)*2+get_global_id(0)] + globalA;\n"
+        "    });\n"
         // Have a child kernel write into last quarter of output
-        "  enqueue_kernel(childQueue, CLK_ENQUEUE_FLAGS_WAIT_KERNEL, ndrange, "
-        "    ^{"
-        "      output[get_global_size(0)*3 + get_global_id(0)] = "
-        "inputA[get_global_size(0)*3 + get_global_id(0)] + inputB[get_global_size(0)*3 + "
-        "get_global_id(0)] + globalA + 2;"
-        "    });"
-        "}"};
+        "  enqueue_kernel(childQueue, CLK_ENQUEUE_FLAGS_WAIT_KERNEL, ndrange, \n"
+        "    ^{\n"
+        "      output[get_global_size(0)*3 + get_global_id(0)] = \n"
+        "inputA[get_global_size(0)*3 + get_global_id(0)] + inputB[get_global_size(0)*3 + \n"
+        "get_global_id(0)] + globalA + 2;\n"
+        "    });\n"
+        "}\n"
+        };
 #if defined(CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY)
     // Old interface style
     cl::Program::Sources programStrings;
@@ -114,7 +95,7 @@ int main(void) {
     // New simpler string interface style
     std::vector<std::string> programStrings{kernel1, kernel2};
 #endif  // #if defined(CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY)
-    cl::Program vectorAddProgram(programStrings);
+    cl::Program vectorAddProgram(context, programStrings);
 #if defined(CL_HPP_ENABLE_EXCEPTIONS)
     try {
         vectorAddProgram.build("-cl-std=CL2.0");
@@ -170,11 +151,11 @@ int main(void) {
 
     // Traditional cl_mem allocations
     std::vector<int> output(numElements, 0xdeadbeef);
-    cl::Buffer outputBuffer(output.begin(), output.end(), false);
+    cl::Buffer outputBuffer(context, output.begin(), output.end(), false);
 
     std::vector<int, cl::SVMAllocator<int, cl::SVMTraitCoarse<>>> output2(numElements / 2,
                                                                           0xdeadbeef);
-    cl::Pipe aPipe(sizeof(cl_int), numElements / 2);
+    cl::Pipe aPipe(context, sizeof(cl_int), numElements / 2);
     // Unfortunately, there is no way to check for a default or know if a kernel needs one
     // so the user has to create one
     // We can't preemptively do so on device creation because they cannot then replace it
@@ -213,7 +194,7 @@ int main(void) {
     // Grab the SVM output vector using a map
     cl::mapSVM(output2);
 
-    cl::Device d = cl::Device::getDefault();
+    cl::Device d = device;  // cl::Device::getDefault();
     std::cout << "Max pipe args: " << d.getInfo<CL_DEVICE_MAX_PIPE_ARGS>() << "\n";
     std::cout << "Max pipe active reservations: "
               << d.getInfo<CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS>() << "\n";
