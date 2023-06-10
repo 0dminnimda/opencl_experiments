@@ -8,6 +8,8 @@
 
 #include "opencl_helpers.cpp"
 
+// TODO: https://github.com/KhronosGroup/OpenCL-Guide/blob/main/chapters/os_tooling.md
+
 int compile(const std::string &kernel_path, const std::string &binary_path) {
     cl::Device device;
     if (get_gpu_device(device)) { return -1; }
