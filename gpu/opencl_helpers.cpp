@@ -2,6 +2,7 @@
 #include <cctype>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 std::string as_platform_version(int opencl_version) {
     return "OpenCL " + std::to_string(opencl_version / 100) + "." +
@@ -108,6 +109,17 @@ bool get_gpu_device(cl::Device &device) {
     device = devices[0];
 
     return false;
+}
+
+std::vector<std::string> get_device_extensions(cl::Device &device) {
+    std::string extensions_string = device.getInfo<CL_DEVICE_EXTENSIONS>();
+    std::istringstream iss(extensions_string);
+    std::vector<std::string> extensions;
+    std::string extension;
+    while (std::getline(iss, extension, ' ')) {
+        extensions.push_back(extension);
+    }
+    return extensions;
 }
 
 template <int index = 0, typename T0, typename... T1s>
