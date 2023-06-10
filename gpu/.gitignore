@@ -4,3 +4,4 @@
 *.exp
 *.lib
 *.il
+*.bc
