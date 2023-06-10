@@ -2,7 +2,7 @@
 
 ## Setup
 
-To use you need to get the OpenCL SDK from [here]().
+To use you need to get the OpenCL SDK from [here](https://github.com/KhronosGroup/OpenCL-SDK/releases).
 It will contian compiled libraries as well as C and C++ API.
 For me it's `C/OpenCL-SDK/v2023.04.17-Win-x64`, so I use it, but you should replace it with yours in `.clangd` and `build.py`
 
