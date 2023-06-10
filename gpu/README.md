@@ -21,5 +21,5 @@ To see the available platforms and devices + test that everything works.
 You also can try
 
 ```shell
-python build.py test4.cpp && ./main.out
+python build.py test_basic.cpp && ./main.out
 ```
