@@ -40,3 +40,11 @@ def build():
 
 
 print("Return code:", build())
+
+# also SEE:
+# - https://thrust.github.io/
+# - https://www.openacc.org/
+# - http://boostorg.github.io/compute/
+# - https://github.com/HSA-Libraries/Bolt
+# - https://arrayfire.com/
+# - https://skelcl.github.io/
