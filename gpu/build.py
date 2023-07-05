@@ -48,3 +48,4 @@ print("Return code:", build())
 # - https://github.com/HSA-Libraries/Bolt
 # - https://arrayfire.com/
 # - https://skelcl.github.io/
+# - https://www.khronos.org/sycl/
