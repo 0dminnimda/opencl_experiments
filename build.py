@@ -19,7 +19,10 @@ def build():
     libs.append((OPENCL_PATH / "lib"))
     includes.append((OPENCL_PATH / "include"))
 
-    args.extend(["--std=c++17", "-Wno-deprecated-declarations", "-lOpenCL"])
+    is_cpp = program.endswith("cpp")
+    if is_cpp:
+        args.extend(["--std=c++17"])
+    args.extend(["-Wno-deprecated-declarations", "-lOpenCL"])
 
     if SAN:
         args.append("-fsanitize=undefined,address")
@@ -49,3 +52,8 @@ print("Return code:", build())
 # - https://arrayfire.com/
 # - https://skelcl.github.io/
 # - https://www.khronos.org/sycl/
+
+# https://github.com/KhronosGroup/OpenCL-Guide/blob/main/chapters/cpp_for_opencl.md
+# https://forums.developer.nvidia.com/t/clcreateprogramwithil-alternatives/216557
+# https://github.com/KhronosGroup/OpenCL-Guide/blob/main/chapters/os_tooling.md
+# https://www.khronos.org/blog/offline-compilation-of-opencl-kernels-into-spir-v-using-open-source-tooling
